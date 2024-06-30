@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel index.js -d dist"
+    "build": "cp src/express-server.js netlify/functions/server.js"
   },
   "author": "",
   "license": "ISC",
