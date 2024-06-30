@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 const router = express.Router();
 
-router.get('/api/hello', async (req, res) => {
+router.get('/', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
     const testIp = req.query.test_ip; // For testing purposes
     const clientIp = testIp || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -23,6 +23,6 @@ router.get('/api/hello', async (req, res) => {
     }
 });
 
-app.use('/', router);
+app.use('/api/hello', router);
 
 module.exports.handler = serverless(app);

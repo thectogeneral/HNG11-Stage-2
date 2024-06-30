@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "mkdir -p netlify/functions"
+    "build": "mkdir -p netlify/functions && cp src/app.js netlify/functions/server.js"
   },
   "author": "",
   "license": "ISC",
