@@ -23,6 +23,6 @@ router.get('/api/hello', async (req, res) => {
     }
 });
 
-app.use('/', router);
+app.use('/.netlify/functions/server', router);
 
 module.exports.handler = serverless(app);
