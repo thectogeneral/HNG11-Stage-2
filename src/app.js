@@ -8,23 +8,36 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-const IPGEOLOCATION_API_KEY = process.env.IPGEOLOCATION_API_KEY;
+const IPINFO_API_TOKEN = process.env.IPINFO_API_TOKEN;
 const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
     const testIp = req.query.test_ip; // For testing purposes
 
-    try {
-        // Fetch the client IP address using ipify
-        const ipifyResponse = await axios.get('https://api.ipify.org?format=json');
-        const clientIp = ipifyResponse.data.ip;
+    let clientIp;
+    if (testIp) {
+        clientIp = testIp;
+    } else if (req.headers['x-forwarded-for']) {
+        clientIp = req.headers['x-forwarded-for'].split(',')[0].trim();
+    } else if (req.connection.remoteAddress) {
+        clientIp = req.connection.remoteAddress;
+    } else {
+        // Fetch the client IP address using ipify as a fallback
+        try {
+            const ipifyResponse = await axios.get('https://api.ipify.org?format=json');
+            clientIp = ipifyResponse.data.ip;
+        } catch (error) {
+            res.status(500).send('Error fetching client IP address');
+            return;
+        }
+    }
 
-        // Get the location data based on the IP address
-        const locationResponse = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${clientIp}&fields=geo`);
+    try {
+        // Get the location data based on the IP address using IPinfo
+        const locationResponse = await axios.get(`https://ipinfo.io/${clientIp}?token=${IPINFO_API_TOKEN}`);
         const location = locationResponse.data.city || 'Unknown Location';
-        const latitude = locationResponse.data.latitude;
-        const longitude = locationResponse.data.longitude;
+        const [latitude, longitude] = locationResponse.data.loc.split(',');
 
         // Get the weather data based on the latitude and longitude
         const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHERMAP_API_KEY}`);
