@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-const IPSTACK_API_KEY = process.env.IPSTACK_API_KEY;
+const IPGEOLOCATION_API_KEY = process.env.IPGEOLOCATION_API_KEY;
 
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
@@ -17,9 +17,9 @@ router.get('/api/hello', async (req, res) => {
 
     try {
         // Get the location and weather data based on the IP address
-        const response = await axios.get(`http://api.ipstack.com/${clientIp}?access_key=${IPSTACK_API_KEY}&fields=city,temperature`);
+        const response = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${clientIp}&fields=geo,weather`);
         const location = response.data.city || 'Unknown Location';
-        const temperature = response.data.temperature || 'Unknown Temperature';
+        const temperature = response.data.weather.temperature || 'Unknown Temperature';
 
         res.json({
             client_ip: clientIp,
