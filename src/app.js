@@ -8,21 +8,18 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-const IPGEOLOCATION_API_KEY = process.env.IPGEOLOCATION_API_KEY;
+const IPSTACK_API_KEY = process.env.IPSTACK_API_KEY;
 
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
     const testIp = req.query.test_ip; // For testing purposes
-    const clientIp = testIp || req?.headers['x-forwarded-for'] || req?.connection?.remoteAddress
+    const clientIp = testIp || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
     try {
         // Get the location and weather data based on the IP address
-        const response = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${clientIp}&fields=geo,weather`);
+        const response = await axios.get(`http://api.ipstack.com/${clientIp}?access_key=${IPSTACK_API_KEY}&fields=city,temperature`);
         const location = response.data.city || 'Unknown Location';
-
-        // Get the weather data based on the latitude and longitude
-        const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHERMAP_API_KEY}`);
-        const temperature = weatherResponse.data.main.temp;
+        const temperature = response.data.temperature || 'Unknown Temperature';
 
         res.json({
             client_ip: clientIp,
