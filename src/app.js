@@ -2,6 +2,7 @@ const serverless = require('serverless-http');
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
+const requestIp = require('request-ip');
 
 dotenv.config();
 
