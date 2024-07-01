@@ -15,7 +15,7 @@ const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'World';
-    const clientIp = req.ip;
+    const clientIp = req.socket.remoteAddress || '8.8.8.8';
 
     try {
         // Get location
