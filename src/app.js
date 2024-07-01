@@ -13,7 +13,7 @@ const IPGEOLOCATION_API_KEY = process.env.IPGEOLOCATION_API_KEY;
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
     const testIp = req.query.test_ip; // For testing purposes
-    const clientIp = testIp || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const clientIp = testIp || req?.headers['x-forwarded-for'] || req?.connection?.remoteAddress
 
     try {
         // Get the location and weather data based on the IP address
