@@ -11,32 +11,33 @@ const router = express.Router();
 
 app.set('trust proxy', true);
 
-const IPINFO_KEY = process.env.IPINFO_KEY;
 const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
 router.get('/api/hello', async (req, res) => {
-    const visitorName = req.query.visitor_name || 'Guest';
-    const clientIp = requestIp.getClientIp(req) || ''; // Default to an empty string if clientIp is undefined
+    const visitorName = req.query.visitor_name || 'World';
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '8.8.8.8';
 
     try {
-        // Get the location data based on the IP address using ipinfo
-        const locationResponse = await axios.get(`https://ipinfo.io/${clientIp}/geo`, {
-            headers: { Authorization: `Bearer ${IPINFO_KEY}` }
-        });
-        const location = locationResponse.data.city || 'Unknown Location';
-        const [latitude, longitude] = locationResponse.data.loc.split(',');
+        // Get location
+        const locationRes = await axios.get(`http://ip-api.com/json/${clientIp}`);
+        const locationData = locationRes.data;
 
-        // Get the weather data based on the latitude and longitude
-        const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHERMAP_API_KEY}`);
-        const temperature = weatherResponse.data.main.temp;
+        const city = locationData.city || 'Unknown';
+
+        // Get weather
+        const weatherRes = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${OPENWEATHERMAP_API_KEY}&units=metric`);
+        const weatherData = weatherRes.data;
+
+        const temperature = weatherData.main.temp;
 
         res.json({
             client_ip: clientIp,
-            location: location,
-            greeting: `Hello, ${visitorName}! The temperature is ${temperature} degrees Celsius in ${location}.`
+            location: city,
+            greeting: `Hello ${visitorName}!, the temperature is ${temperature} degrees Celsius in ${city}`
         });
     } catch (error) {
-        res.status(500).send('Error fetching data');
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve data' });
     }
 });
 
