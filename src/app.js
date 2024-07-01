@@ -9,6 +9,8 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
+app.set('trust proxy', true);
+
 const IPINFO_KEY = process.env.IPINFO_KEY;
 const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
