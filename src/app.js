@@ -14,9 +14,12 @@ const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
     const testIp = req.query.test_ip; // For testing purposes
-    const clientIp = testIp || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
     try {
+        // Fetch the client IP address using ipify
+        const ipifyResponse = await axios.get('https://api.ipify.org?format=json');
+        const clientIp = testIp || ipifyResponse.data.ip;
+
         // Get the location data based on the IP address
         const locationResponse = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${clientIp}&fields=geo`);
         const location = locationResponse.data.city || 'Unknown Location';
