@@ -9,20 +9,20 @@ dotenv.config();
 const app = express();
 const router = express.Router();
 
-const IPGEOLOCATION_API_KEY = process.env.IPGEOLOCATION_API_KEY;
+const IPINFO_KEY = process.env.IPINFO_KEY;
 const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
 router.get('/api/hello', async (req, res) => {
     const visitorName = req.query.visitor_name || 'Guest';
-    const clientIp = requestIp.getClientIp(req);
-    
+    const clientIp = requestIp.getClientIp(req) || ''; // Default to an empty string if clientIp is undefined
 
     try {
-        // Get the location data based on the IP address
-        const locationResponse = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${clientIp}&fields=geo`);
+        // Get the location data based on the IP address using ipinfo
+        const locationResponse = await axios.get(`https://ipinfo.io/${clientIp}/geo`, {
+            headers: { Authorization: `Bearer ${IPINFO_KEY}` }
+        });
         const location = locationResponse.data.city || 'Unknown Location';
-        const latitude = locationResponse.data.latitude;
-        const longitude = locationResponse.data.longitude;
+        const [latitude, longitude] = locationResponse.data.loc.split(',');
 
         // Get the weather data based on the latitude and longitude
         const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHERMAP_API_KEY}`);
