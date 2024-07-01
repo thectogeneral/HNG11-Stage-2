@@ -18,7 +18,7 @@ router.get('/api/hello', async (req, res) => {
     try {
         // Fetch the client IP address using ipify
         const ipifyResponse = await axios.get('https://api.ipify.org?format=json');
-        const clientIp = testIp || ipifyResponse.data.ip;
+        const clientIp = ipifyResponse.data.ip;
 
         // Get the location data based on the IP address
         const locationResponse = await axios.get(`https://api.ipgeolocation.io/ipgeo?apiKey=${IPGEOLOCATION_API_KEY}&ip=${clientIp}&fields=geo`);
